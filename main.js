@@ -62,9 +62,7 @@ function convertTopoToDot(topo) {
 					topics.add(linkedName);
 				}
 				else if (type === 'stores') {
-					if (entityName.includes("JOIN")) {
-						outside.push(`"${linkedName}" -> "${entityName}";`);
-					} else if (entityType === 'Source:') {
+					if (entityName.includes("JOIN") || entityType === 'Source:') {
 						outside.push(`"${linkedName}" -> "${entityName}";`);
 					} else {
 						outside.push(`"${entityName}" -> "${linkedName}";`);

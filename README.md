@@ -2,7 +2,7 @@
 
 A tool helps visualizing stream topologies by generating nice looking diagrams from a kafka stream topology descriptions.
 
-## [Try now](https://zz85.github.io/kafka-streams-viz)
+## [Try now](https://mmbishop.github.io/kafka-streams-viz)
 
 This was conceived during one of the lab days @ Zendesk Singapore.
 
