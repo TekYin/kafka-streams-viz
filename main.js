@@ -41,6 +41,7 @@ function convertTopoToDot(topo) {
 
 		if (match) {
 			entityName = processName(match[2]);
+			const entityType = match[1];
 			var type = match[3]; // source, processor or sink
 			var linkedNames = match[4];
 			linkedNames = linkedNames.replace(/\[|\]/g, '');
@@ -62,6 +63,8 @@ function convertTopoToDot(topo) {
 				}
 				else if (type === 'stores') {
 					if (entityName.includes("JOIN")) {
+						outside.push(`"${linkedName}" -> "${entityName}";`);
+					} else if (entityType === 'Source:') {
 						outside.push(`"${linkedName}" -> "${entityName}";`);
 					} else {
 						outside.push(`"${entityName}" -> "${linkedName}";`);
