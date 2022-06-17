@@ -21,7 +21,7 @@ function convertTopoToDot(topo) {
 
 	// dirty but quick parsing
 	lines.forEach(line => {
-		var sub = /Sub-topology: ([0-9]*)/;
+		var sub = /Sub-topology: (\w*)/;
 		var match = sub.exec(line);
 
 		if (match) {
@@ -58,20 +58,31 @@ function convertTopoToDot(topo) {
 				}
 				else if (type === 'topic') {
 					// to
-					outside.push(`"${entityName}" -> "${linkedName}";`);
-					topics.add(linkedName);
+                    if (entityType === 'Sink:') {
+                        outside.push(`"${entityName}" -> "${linkedName}";`);
+                    } else {
+                        results.push(`"${entityName}" -> "${linkedName}";`);
+                    }
+                    topics.add(linkedName);
 				}
 				else if (type === 'stores') {
 					if (entityName.includes("JOIN") || entityType === 'Source:') {
-						outside.push(`"${linkedName}" -> "${entityName}";`);
+                        outside.push(`"${linkedName}" -> "${entityName}";`);
+                    } else if (entityType === 'Processor:') {
+                        results.push(`"${entityName}" -> "${linkedName}";`);
 					} else {
 						outside.push(`"${entityName}" -> "${linkedName}";`);
 					}
 
 					stores.add(linkedName);
 				}
-                else if (entityType === 'Processor:' && type === 'sourceTopic') {
-                    outside.push(`"${linkedName}" -> "${entityName}";`);
+                else if (type === 'sourceTopic') {
+                    if (entityType === 'Sink') {
+                        outside.push(`"${linkedName}" -> "${entityName}";`);
+                    }
+                    else {
+                        results.push(`"${linkedName}" -> "${entityName}";`);
+                    }
                     topics.add(linkedName);
                 }
 			});
@@ -97,11 +108,11 @@ function convertTopoToDot(topo) {
 	results = results.concat(outside);
 
 	stores.forEach(node => {
-		results.push(`"${node}" [shape=cylinder];`)
+		results.push(`"${node}" [shape=cylinder, color=black, fillcolor=lightgrey];`)
 	});
 
 	topics.forEach(node => {
-		results.push(`"${node}" [shape=rect];`)
+		results.push(`"${node}" [shape=rect, color=black, fillcolor=lightgrey];`)
 	});
 
 	return `
