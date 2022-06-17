@@ -37,7 +37,7 @@ function convertTopoToDot(topo) {
 			return;
 		}
 
-		match = /(Source\:|Processor\:|Sink:)\s+(\S+)\s+\((topics|topic|stores)\:(.*)\)/.exec(line)
+		match = /(Source\:|Processor\:|Sink:)\s+(\S+)\s+\((topics|topic|sourceTopic|stores)\:(.*)\)/.exec(line)
 
 		if (match) {
 			entityName = processName(match[2]);
@@ -70,6 +70,10 @@ function convertTopoToDot(topo) {
 
 					stores.add(linkedName);
 				}
+                else if (entityType === 'Processor:' && type === 'sourceTopic') {
+                    outside.push(`"${linkedName}" -> "${entityName}";`);
+                    topics.add(linkedName);
+                }
 			});
 
 			return;
