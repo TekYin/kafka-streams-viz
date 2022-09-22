@@ -40,7 +40,13 @@
 
     Converts an ASCII Kafka Topology description into a hand drawn diagram.
     <a href="https://github.com/TekYin/kafka-streams-viz">Github link</a>.
-
+    <ul>
+      <li> if no `?id=xxxx` present, pressing `SAVE` will save the current topology
+      and assigned to new id</li>
+      <li> if there is `?id=xxx` present, pressing `SAVE`
+      will update the value of the topology on that id</li>
+      <li> press `NEW` to clear the topology and removing the assigned id</li>
+    </ul>
     <container>
       <div>
         <h4>
