@@ -3,8 +3,7 @@
  */
 
 var dpr, rc, ctx;
-const DEBUG = true;
-const STORAGE_KEY = 'kafka-streams-viz';
+const DEBUG = false;
 
 function processName(name) {
     return name.replace(/-/g, '-\\n');
@@ -153,8 +152,6 @@ window.update = function () {
 
     try {
         traverseSvgToRough(g);
-
-        sessionStorage.setItem(STORAGE_KEY, topo);
     } catch (e) {
         console.error('Exception generating graph', e && e.stack || e);
         // TODO update Frontend
@@ -278,22 +275,3 @@ function scheduleUpdate() {
         update();
     }, 200);
 }
-
-// startup
-// var topo;
-//
-// if (window.location.hash.length > 1) {
-//     try {
-//         topo = atob(window.location.hash.substr(1));
-//     } catch {
-//         console.log("Can not read topo from url hash");
-//         window.location.hash = "";
-//     }
-// }
-
-// if (!topo) {
-// 	topo = sessionStorage.getItem(STORAGE_KEY);
-// }
-
-// if (topo) input.value = topo;
-// update();

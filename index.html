@@ -76,7 +76,7 @@
     const analytics = getAnalytics(app);
 
     window.createNew = function () {
-        $("textarea").html("");
+        $("textarea").val("");
         window.history.replaceState(
             {},
             document.title,
@@ -110,7 +110,7 @@
             if (data != null) {
                 console.log(data.topology);
                 console.log(data.date);
-                $("textarea").html(data.topology);
+                $("textarea").val(data.topology);
             }
             scheduleUpdate();
         });
