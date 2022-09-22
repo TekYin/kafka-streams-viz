@@ -124,7 +124,8 @@ function convertTopoToDot(topo) {
 	`;
 }
 
-function update() {
+window.update = function () {
+	console.log("update topology");
 	var topo = input.value;
 	var dotCode = convertTopoToDot(topo);
 	if (DEBUG) console.log('dot code\n', dotCode);
@@ -294,9 +295,9 @@ if (window.location.hash.length > 1) {
 	}
 }
 
-if (!topo) {
-	topo = sessionStorage.getItem(STORAGE_KEY);
-}
+// if (!topo) {
+// 	topo = sessionStorage.getItem(STORAGE_KEY);
+// }
 
-if (topo) input.value = topo;
-update();
+// if (topo) input.value = topo;
+// update();

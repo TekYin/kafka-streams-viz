@@ -1,85 +1,157 @@
 <html>
   <body>
-	<link href="https://fonts.googleapis.com/css?family=Cabin+Sketch" rel="stylesheet">
-	<style>
-		body {
-			font-family: 'Cabin Sketch', cursive;
-		}
+    <link
+      href="https://fonts.googleapis.com/css?family=Cabin+Sketch"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Cabin Sketch", cursive;
+      }
 
-		textarea {
-			font-family: 'monospace';
-			width: 400px;
-			height: 400px;
-	  	}
+      textarea {
+        font-family: "monospace";
+        width: 400px;
+        height: 400px;
+      }
 
-		#graphviz_code, #svg_container {
-			display: none;
-		}
+      #graphviz_code,
+      #svg_container {
+        display: none;
+      }
 
-		container {
-			display: flex;
-		}
+      container {
+        display: flex;
+      }
 
-		div {
-			flex: 0 1;
-		}
+      div {
+        flex: 0 1;
+      }
 
-		a {
-			color: #999;
-		}
-	</style>
-	<script src="vendor/viz-lite.js"></script>
-	<script src="vendor/rough.min.js"></script>
+      a {
+        color: #999;
+      }
+    </style>
+    <script src="vendor/viz-lite.js"></script>
+    <script src="vendor/rough.min.js"></script>
+    <script src="vendor/jquery.js"></script>
 
-	<h2>Kafka Streams Topology Visualizer</h2>
+    <h2>Kafka Streams Topology Visualizer</h2>
 
-	Converts an ASCII Kafka Topology description into a hand drawn diagram. <a href="https://github.com/mmbishop/kafka-streams-viz">Github link</a>.
+    Converts an ASCII Kafka Topology description into a hand drawn diagram.
+    <a href="https://github.com/mmbishop/kafka-streams-viz">Github link</a>.
 
-	<container>
-		<div>
-			<h4>Input Kafka Topology <button onclick="update()">update</button></h4>
-			<textarea id="input" onkeydown="scheduleUpdate()" onpaste="scheduleUpdate()">
-Topology
-Sub-topologies:
-Sub-topology: 0
-	Source:  KSTREAM-SOURCE-0000000000 (topics: [conversation-meta])
-	--> KSTREAM-TRANSFORM-0000000001
-	Processor: KSTREAM-TRANSFORM-0000000001 (stores: [conversation-meta-state])
-	--> KSTREAM-KEY-SELECT-0000000002
-	<-- KSTREAM-SOURCE-0000000000
-	Processor: KSTREAM-KEY-SELECT-0000000002 (stores: [])
-	--> KSTREAM-FILTER-0000000005
-	<-- KSTREAM-TRANSFORM-0000000001
-	Processor: KSTREAM-FILTER-0000000005 (stores: [])
-	--> KSTREAM-SINK-0000000004
-	<-- KSTREAM-KEY-SELECT-0000000002
-	Sink: KSTREAM-SINK-0000000004 (topic: count-resolved-repartition)
-	<-- KSTREAM-FILTER-0000000005
-Sub-topology: 1
-	Source: KSTREAM-SOURCE-0000000006 (topics: [count-resolved-repartition])
-	--> KSTREAM-AGGREGATE-0000000003
-	Processor: KSTREAM-AGGREGATE-0000000003 (stores: [count-resolved])
-	--> KTABLE-TOSTREAM-0000000007
-	<-- KSTREAM-SOURCE-0000000006
-	Processor: KTABLE-TOSTREAM-0000000007 (stores: [])
-	--> KSTREAM-SINK-0000000008
-	<-- KSTREAM-AGGREGATE-0000000003
-	Sink: KSTREAM-SINK-0000000008 (topic: streams-count-resolved)
-	<-- KTABLE-TOSTREAM-0000000007
-			</textarea>
-		</div>
+    <container>
+      <div>
+        <h4>
+          Input Kafka Topology <button onclick="writeUserData()">Save</button>
+          <button onclick="createNew()">New</button>
+        </h4>
+        <textarea
+          id="input"
+          onkeydown="scheduleUpdate()"
+          onpaste="scheduleUpdate()"
+        ></textarea>
+      </div>
 
-		<div>
-			<h4>Output Sketch Diagram</h4>
-			<canvas id="canvas"></canvas>
-		</div>
-	</container>>
+      <div>
+        <h4>Output Sketch Diagram</h4>
+        <canvas id="canvas"></canvas>
+      </div> </container
+    >>
 
-	<textarea id="graphviz_code"></textarea>
-	<div id="svg_container"></div>
+    <textarea id="graphviz_code"></textarea>
+    <div id="svg_container"></div>
 
-	<div id="results"></div>
-	<script src="main.js"></script>
+    <div id="results"></div>
+    <script src="main.js"></script>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
 
-	</body>
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyCVz5kf34jCoiXIdicVQksSF2Gn46UjJtU",
+        authDomain: "kafka-stream-visualizer.firebaseapp.com",
+        databaseURL:
+          "https://kafka-stream-visualizer-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "kafka-stream-visualizer",
+        storageBucket: "kafka-stream-visualizer.appspot.com",
+        messagingSenderId: "369308083069",
+        appId: "1:369308083069:web:316e8a67553299f897a214",
+        measurementId: "G-NCF1Q2H637",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+
+      import {
+        getDatabase,
+        set,
+        ref,
+        update,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+
+      window.createNew = function () {
+        $("textarea").html("");
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+        scheduleUpdate();
+      };
+
+      window.writeUserData = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        var id = urlParams.get("id");
+        if (id == null) {
+          id = generateUID(10);
+        }
+        const db = getDatabase(app);
+        const topology = $("textarea").val();
+        set(ref(db, "topology/" + id), {
+          topology: topology,
+          date: new Date().toLocaleString(),
+        });
+        window.history.replaceState(null, null, "?id=" + id);
+      };
+
+      function readUserData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const db = getDatabase();
+        const starCountRef = ref(db, "topology/" + id);
+        onValue(starCountRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data != null) {
+            console.log(data.topology);
+            console.log(data.date);
+            $("textarea").html(data.topology);
+          }
+          scheduleUpdate();
+        });
+      }
+
+      function generateUID(length) {
+        return window
+          .btoa(
+            Array.from(
+              window.crypto.getRandomValues(new Uint8Array(length * 2))
+            )
+              .map((c) => String.fromCharCode(c))
+              .join("")
+          )
+          .replace(/[+/]/g, "")
+          .substring(0, length);
+      }
+      readUserData();
+    </script>
+  </body>
 </html>
