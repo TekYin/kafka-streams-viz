@@ -1,0 +1,35 @@
+body {
+    font-family: "Open Sans", serif;
+}
+
+textarea {
+    font-family: "monospace";
+    width: 400px;
+    height: 400px;
+}
+
+#graphviz_code,
+#svg_container {
+    display: none;
+}
+
+container {
+    display: flex;
+}
+
+div {
+    flex: 0 1;
+}
+
+a {
+    color: #999;
+}
+
+.header {
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.instruction {
+    margin: 10px;
+}
