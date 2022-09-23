@@ -1,0 +1,153 @@
+<html>
+<head>
+    <link
+            href="https://fonts.googleapis.com/css?family=Open+Sans"
+            rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="vendor/viz-lite.js"></script>
+    <script src="vendor/rough.min.js"></script>
+    <script src="vendor/jquery.js"></script>
+</head>
+<body>
+
+<div class="header">Kafka Streams Topology Visualizer</div>
+<div>Converts an ASCII Kafka Topology description into a hand drawn diagram. <a
+        href="https://github.com/TekYin/kafka-streams-viz">Github link</a>.
+</div>
+<div class="instruction">
+    Save & load mechanism:
+    <ul>
+        <li> if no `?id=xxxx` present, pressing `SAVE` will save the current topology
+            and assigned to new id
+        </li>
+        <li> if there is `?id=xxx` present, pressing `SAVE`
+            will update the value of the topology on that id
+        </li>
+        <li> press `NEW` to clear the topology and removing the assigned id</li>
+    </ul>
+</div>
+<container>
+    <div class="options">
+        <label for="title">Title </label>
+        <ul class="topology">
+        </ul>
+    </div>
+    <div style="margin-left: 20px">
+        <label for="title">Title </label><Input id="title">
+        <h4>
+            Input Kafka Topology
+            <button onclick="writeUserData()">Save</button>
+            <button onclick="createNew()">New</button>
+        </h4>
+        <textarea
+                id="input"
+                onkeydown="scheduleUpdate()"
+                onpaste="scheduleUpdate()"
+        ></textarea>
+    </div>
+    <div>
+        <h4>Output Sketch Diagram</h4>
+        <canvas id="canvas"></canvas>
+    </div>
+</container>
+
+<textarea id="graphviz_code"></textarea>
+<div id="svg_container"></div>
+
+<div id="results"></div>
+<script src="main.js"></script>
+<script type="module">
+    import {
+        getDatabase,
+        set,
+        ref,
+        onValue,
+    } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+    import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCVz5kf34jCoiXIdicVQksSF2Gn46UjJtU",
+        authDomain: "kafka-stream-visualizer.firebaseapp.com",
+        databaseURL: "https://kafka-stream-visualizer-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "kafka-stream-visualizer",
+        storageBucket: "kafka-stream-visualizer.appspot.com",
+        messagingSenderId: "369308083069",
+        appId: "1:369308083069:web:316e8a67553299f897a214",
+        measurementId: "G-NCF1Q2H637",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    window.createNew = function () {
+        $("textarea").val("");
+        window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+        );
+        scheduleUpdate();
+    };
+
+    window.writeUserData = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        var id = urlParams.get("id");
+        if (id == null) {
+            id = generateUID(10);
+        }
+        const db = getDatabase(app);
+        const topology = $("textarea").val();
+        const title = $("#title").val();
+        set(ref(db, "topology/" + id), {
+            topology: topology,
+            title: title,
+            date: new Date().toLocaleString(),
+        });
+        window.history.replaceState(null, null, "?id=" + id);
+    };
+
+    function readUserData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const db = getDatabase();
+        const starCountRef = ref(db, "topology/" + id);
+        onValue(starCountRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data != null) {
+                // console.log(data.topology);
+                console.log(data.date);
+                $("textarea").val(data.topology);
+            }
+            scheduleUpdate();
+        });
+        onValue(ref(db, "topology"), (snapshot) => {
+            const data = snapshot.val();
+            let topology = $(".topology");
+            topology.html("");
+            for (const key in data) {
+                console.log(key);
+                topology.append('<li><a href="?id='+key+'">' + key + '</a></li>');
+            }
+
+        });
+    }
+
+    function generateUID(length) {
+        return window
+            .btoa(
+                Array.from(
+                    window.crypto.getRandomValues(new Uint8Array(length * 2))
+                )
+                    .map((c) => String.fromCharCode(c))
+                    .join("")
+            )
+            .replace(/[+/]/g, "")
+            .substring(0, length);
+    }
+
+    readUserData();
+</script>
+</body>
+</html>

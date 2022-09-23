@@ -12,41 +12,21 @@
 <body>
 
 <div class="header">Kafka Streams Topology Visualizer</div>
-<div>Converts an ASCII Kafka Topology description into a hand drawn diagram. <a
-        href="https://github.com/TekYin/kafka-streams-viz">Github link</a>.
-</div>
-<div class="instruction">
-    Save & load mechanism:
-    <ul>
-        <li> if no `?id=xxxx` present, pressing `SAVE` will save the current topology
-            and assigned to new id
-        </li>
-        <li> if there is `?id=xxx` present, pressing `SAVE`
-            will update the value of the topology on that id
-        </li>
-        <li> press `NEW` to clear the topology and removing the assigned id</li>
-    </ul>
-</div>
+
+<div class="title" id="title">TEst</div>
 <container>
-    <div class="options">
-        <label for="title">Title </label>
-        <ul class="topology">
-        </ul>
-    </div>
-    <div style="margin-left: 20px">
-        <label for="title">Title </label><Input id="title">
+    <div>
         <h4>
-            Input Kafka Topology
-            <button onclick="writeUserData()">Save</button>
-            <button onclick="createNew()">New</button>
+            Kafka Topology
         </h4>
         <textarea
                 id="input"
-                onkeydown="scheduleUpdate()"
-                onpaste="scheduleUpdate()"
+                readonly
+                style="width: 500px;height: 600px"
+
         ></textarea>
     </div>
-    <div>
+    <div style="margin-left: 20px">
         <h4>Output Sketch Diagram</h4>
         <canvas id="canvas"></canvas>
     </div>
@@ -81,33 +61,6 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
 
-    window.createNew = function () {
-        $("textarea").val("");
-        window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-        );
-        scheduleUpdate();
-    };
-
-    window.writeUserData = function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        var id = urlParams.get("id");
-        if (id == null) {
-            id = generateUID(10);
-        }
-        const db = getDatabase(app);
-        const topology = $("textarea").val();
-        const title = $("#title").val();
-        set(ref(db, "topology/" + id), {
-            topology: topology,
-            title: title,
-            date: new Date().toLocaleString(),
-        });
-        window.history.replaceState(null, null, "?id=" + id);
-    };
-
     function readUserData() {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get("id");
@@ -116,35 +69,11 @@
         onValue(starCountRef, (snapshot) => {
             const data = snapshot.val();
             if (data != null) {
-                // console.log(data.topology);
-                console.log(data.date);
                 $("textarea").val(data.topology);
+                $("#title").html(data.title);
             }
             scheduleUpdate();
         });
-        onValue(ref(db, "topology"), (snapshot) => {
-            const data = snapshot.val();
-            let topology = $(".topology");
-            topology.html("");
-            for (const key in data) {
-                console.log(key);
-                topology.append('<li><a href="?id='+key+'">' + key + '</a></li>');
-            }
-
-        });
-    }
-
-    function generateUID(length) {
-        return window
-            .btoa(
-                Array.from(
-                    window.crypto.getRandomValues(new Uint8Array(length * 2))
-                )
-                    .map((c) => String.fromCharCode(c))
-                    .join("")
-            )
-            .replace(/[+/]/g, "")
-            .substring(0, length);
     }
 
     readUserData();
