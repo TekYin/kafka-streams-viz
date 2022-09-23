@@ -116,7 +116,7 @@ function convertTopoToDot(topo) {
 		${results.join('\n')}
 	}
 	`;
-    console.log(graph);
+    // console.log(graph);
     return graph;
 }
 

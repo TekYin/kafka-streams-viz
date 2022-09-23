@@ -1,0 +1,82 @@
+<html>
+<head>
+    <link
+            href="https://fonts.googleapis.com/css?family=Open+Sans"
+            rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="vendor/viz-lite.js"></script>
+    <script src="vendor/rough.min.js"></script>
+    <script src="vendor/jquery.js"></script>
+</head>
+<body>
+
+<div class="header">Kafka Streams Topology Visualizer</div>
+
+<div class="title" id="title">TEst</div>
+<container>
+    <div>
+        <h4>
+            Kafka Topology
+        </h4>
+        <textarea
+                id="input"
+                readonly
+                style="width: 500px;height: 600px"
+
+        ></textarea>
+    </div>
+    <div style="margin-left: 20px">
+        <h4>Output Sketch Diagram</h4>
+        <canvas id="canvas"></canvas>
+    </div>
+</container>
+
+<textarea id="graphviz_code"></textarea>
+<div id="svg_container"></div>
+
+<div id="results"></div>
+<script src="main.js"></script>
+<script type="module">
+    import {
+        getDatabase,
+        set,
+        ref,
+        onValue,
+    } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+    import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCVz5kf34jCoiXIdicVQksSF2Gn46UjJtU",
+        authDomain: "kafka-stream-visualizer.firebaseapp.com",
+        databaseURL: "https://kafka-stream-visualizer-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "kafka-stream-visualizer",
+        storageBucket: "kafka-stream-visualizer.appspot.com",
+        messagingSenderId: "369308083069",
+        appId: "1:369308083069:web:316e8a67553299f897a214",
+        measurementId: "G-NCF1Q2H637",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    function readUserData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const db = getDatabase();
+        const starCountRef = ref(db, "topology/" + id);
+        onValue(starCountRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data != null) {
+                $("textarea").val(data.topology);
+                $("#title").html(data.title);
+            }
+            scheduleUpdate();
+        });
+    }
+
+    readUserData();
+</script>
+</body>
+</html>

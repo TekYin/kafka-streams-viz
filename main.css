@@ -25,6 +25,21 @@ a {
     color: #999;
 }
 
+.topology li {
+    list-style-type: none;
+    font-size: 14px;
+    margin-left: -3em;
+}
+
+.title {
+    font-size: 30px;
+    font-weight: bold;
+    margin: 0 0 0 0;
+    text-decoration: underline;
+    text-transform: capitalize;
+
+}
+
 .header {
     font-size: 30px;
     margin-bottom: 20px;

@@ -28,7 +28,13 @@
     </ul>
 </div>
 <container>
-    <div>
+    <div class="options">
+        <label for="title">Title </label>
+        <ul class="topology">
+        </ul>
+    </div>
+    <div style="margin-left: 20px">
+        <label for="title">Title </label><Input id="title">
         <h4>
             Input Kafka Topology
             <button onclick="writeUserData()">Save</button>
@@ -93,8 +99,10 @@
         }
         const db = getDatabase(app);
         const topology = $("textarea").val();
+        const title = $("#title").val();
         set(ref(db, "topology/" + id), {
             topology: topology,
+            title: title,
             date: new Date().toLocaleString(),
         });
         window.history.replaceState(null, null, "?id=" + id);
@@ -108,11 +116,21 @@
         onValue(starCountRef, (snapshot) => {
             const data = snapshot.val();
             if (data != null) {
-                console.log(data.topology);
+                // console.log(data.topology);
                 console.log(data.date);
                 $("textarea").val(data.topology);
             }
             scheduleUpdate();
+        });
+        onValue(ref(db, "topology"), (snapshot) => {
+            const data = snapshot.val();
+            let topology = $(".topology");
+            topology.html("");
+            for (const key in data) {
+                console.log(key);
+                topology.append('<li><a href="?id='+key+'">' + key + '</a></li>');
+            }
+
         });
     }
 
