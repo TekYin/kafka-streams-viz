@@ -35,11 +35,14 @@
     </div>
     <div style="margin-left: 20px">
         <div>
-            <label for="title">Key </label><Input id="fb-key">
+            <label for="fb-key">Key </label><Input id="fb-key">
             <button onclick="renameKey()">Rename</button>
         </div>
         <div>
             <label for="title">Title </label><Input id="title">
+        </div>
+        <div>
+            <label for="snippet">Snippet </label><Input id="snippet">
         </div>
 
         <h4>
@@ -104,10 +107,12 @@
         const newId = $("#fb-key").val();
         const topology = $("textarea").val();
         const title = $("#title").val();
+        const snippet = $("#snippet").val();
         const db = getDatabase();
         set(ref(db, "topology/" + newId), {
             topology: topology,
             title: title,
+            snippet: snippet,
             date: new Date().toLocaleString(),
         });
         if (id !== newId) {
@@ -125,9 +130,11 @@
         const db = getDatabase(app);
         const topology = $("textarea").val();
         const title = $("#title").val();
+        const snippet = $("#snippet").val();
         set(ref(db, "topology/" + id), {
             topology: topology,
             title: title,
+            snippet: snippet,
             date: new Date().toLocaleString(),
         });
         window.history.replaceState(null, null, "?id=" + id);
@@ -145,6 +152,7 @@
                 console.log(data.date);
                 $("textarea").val(data.topology);
                 $("#title").val(data.title);
+                $("#snippet").val(data.snippet);
                 $("#fb-key").val(id);
             }
             scheduleUpdate();
@@ -157,7 +165,6 @@
                 console.log(key);
                 topology.append('<li><a href="?id=' + key + '">' + key + '</a></li>');
             }
-
         });
     }
 

@@ -109,15 +109,14 @@ function convertTopoToDot(topo) {
         results.push(`"${node}" [shape=rect, color=black, fillcolor=lightgrey];`)
     });
 
-    let graph = `
+    // console.log(graph);
+    return `
 	digraph G {
 		label = "Kafka Streams Topology"
 
 		${results.join('\n')}
 	}
 	`;
-    // console.log(graph);
-    return graph;
 }
 
 window.update = function () {

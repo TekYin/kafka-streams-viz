@@ -12,8 +12,9 @@
 <body>
 
 <div class="header">Kafka Streams Topology Visualizer</div>
+<div><span>Title: </span><span class="title" id="title">-</span></div>
+<div><span>snippet: </span><a href="" target="_blank" class="snippet">-</a></div>
 
-<div class="title" id="title">TEst</div>
 <container>
     <div>
         <h4>
@@ -71,6 +72,9 @@
             if (data != null) {
                 $("textarea").val(data.topology);
                 $("#title").html(data.title);
+                $(".snippet")
+                    .html(data.snippet)
+                    .attr("href", data.snippet)
             }
             scheduleUpdate();
         });
