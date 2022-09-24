@@ -34,7 +34,14 @@
         </ul>
     </div>
     <div style="margin-left: 20px">
-        <label for="title">Title </label><Input id="title">
+        <div>
+            <label for="title">Key </label><Input id="fb-key">
+            <button onclick="renameKey()">Rename</button>
+        </div>
+        <div>
+            <label for="title">Title </label><Input id="title">
+        </div>
+
         <h4>
             Input Kafka Topology
             <button onclick="writeUserData()">Save</button>
@@ -91,6 +98,24 @@
         scheduleUpdate();
     };
 
+    window.renameKey = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const newId = $("#fb-key").val();
+        const topology = $("textarea").val();
+        const title = $("#title").val();
+        const db = getDatabase();
+        set(ref(db, "topology/" + newId), {
+            topology: topology,
+            title: title,
+            date: new Date().toLocaleString(),
+        });
+        if (id !== newId) {
+            set(ref(db, "topology/" + id), null);
+            window.history.replaceState(null, null, "?id=" + newId);
+        }
+    }
+
     window.writeUserData = function () {
         const urlParams = new URLSearchParams(window.location.search);
         var id = urlParams.get("id");
@@ -119,6 +144,8 @@
                 // console.log(data.topology);
                 console.log(data.date);
                 $("textarea").val(data.topology);
+                $("#title").val(data.title);
+                $("#fb-key").val(id);
             }
             scheduleUpdate();
         });
@@ -128,7 +155,7 @@
             topology.html("");
             for (const key in data) {
                 console.log(key);
-                topology.append('<li><a href="?id='+key+'">' + key + '</a></li>');
+                topology.append('<li><a href="?id=' + key + '">' + key + '</a></li>');
             }
 
         });
